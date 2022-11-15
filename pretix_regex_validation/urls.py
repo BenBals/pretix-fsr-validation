@@ -4,7 +4,7 @@ from .views import SettingsView
 
 urlpatterns = [
     url(
-        r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/regex-validation/$",
+        r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/fsr-validation/$",
         SettingsView.as_view(),
         name="settings",
     ),

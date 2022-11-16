@@ -4,7 +4,7 @@ from distutils.command.build import build
 from django.core import management
 from setuptools import find_packages, setup
 
-from pretix_regex_validation import __version__
+from pretix_fsr_validation import __version__
 
 
 try:
@@ -26,13 +26,13 @@ cmdclass = {"build": CustomBuild}
 
 
 setup(
-    name="pretix-regex-validation",
+    name="pretix-fsr-validation",
     version=__version__,
-    description="Allows to add arbitrary regex validation to fields",
+    description="Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam",
     long_description=long_description,
-    url="https://github.com/pretix-unofficial/pretix-regex-validation",
+    url="https://github.com/BenBals/pretix-fsr-validation/",
     author="pretix team",
-    author_email="support@pretix.eu",
+    author_email="benbals@posteo.de",
     license="Apache",
     install_requires=[],
     packages=find_packages(exclude=["tests", "tests.*"]),
@@ -40,6 +40,6 @@ setup(
     cmdclass=cmdclass,
     entry_points="""
 [pretix.plugin]
-pretix_regex_validation=pretix_regex_validation:PretixPluginMeta
+pretix_fsr_validation=pretix_fsr_validation:PretixPluginMeta
 """,
 )

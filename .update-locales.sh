@@ -1,6 +1,6 @@
 #!/bin/sh
-COMPONENTS=pretix/pretix-plugin-pretix-regex-validation
-DIR=pretix_regex_validation/locale
+COMPONENTS=pretix/pretix-plugin-pretix-fsr-validation
+DIR=pretix_fsr_validation/locale
 # Renerates .po files used for translating the plugin
 set -e
 set -x

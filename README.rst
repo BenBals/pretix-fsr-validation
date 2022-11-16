@@ -1,9 +1,9 @@
-Regex Validation
+FSR Validation
 ==========================
 
 This is a plugin for `pretix`_. 
 
-Allows to add arbitrary regex validation to fields
+Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam
 
 Development setup
 -----------------
@@ -44,8 +44,6 @@ To automatically check for these issues before you commit, you can run ``.instal
 License
 -------
 
-
-Copyright 2021 pretix team
 
 Released under the terms of the Apache License 2.0
 

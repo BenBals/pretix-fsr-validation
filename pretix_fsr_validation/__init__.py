@@ -9,20 +9,21 @@ __version__ = "1.0.1"
 
 
 class PluginApp(PluginConfig):
-    name = "pretix_regex_validation"
-    verbose_name = "Regex Validation"
+    name = "pretix_fsr_validation"
+    verbose_name = "FSR Validation"
 
     class PretixPluginMeta:
-        name = gettext_lazy("Regex Validation")
+        name = gettext_lazy("FSR Validation")
         author = "pretix team"
-        description = gettext_lazy("Allows to add arbitrary regex validation to fields")
+        description = gettext_lazy("Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam")
         visible = True
         version = __version__
         category = "CUSTOMIZATION"
         compatibility = "pretix>=3.18.0.dev0"
 
     def ready(self):
+        print("Running fsr validation ready")
         from . import signals  # NOQA
 
 
-default_app_config = "pretix_regex_validation.PluginApp"
+default_app_config = "pretix_fsr_validation.PluginApp"

@@ -16,6 +16,8 @@ from i18nfield.utils import I18nJSONEncoder
 from pretix.base.models import Event, Question
 from pretix.control.views.event import EventSettingsViewMixin
 
+from pretix_fsr_validation.signals import default_config
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,27 +34,23 @@ class FsrValidationSettingsForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["engel_ticket_names"] = forms.CharField(
-            label="Which tickets should be restricted to Engels? (Comma-seperated list)",
+            label="Which tickets should be restricted to Engels? (Comma-seperated list of English names)",
             required=False,
         )
 
-        self.fields["engel_ticket_names:double_booking:messages"] = I18nFormField(
+        self.fields["engel_ticket:double_booking:messages"] = I18nFormField(
             label='Error message for Engel double booking',
             required=False,
             locales=self.obj.settings.locales,
-            initial=LazyI18nString.from_gettext(
-                gettext_noop("You have previously bought a helper ticket. If you want more tickets, please buy normal tickets.")
-            ),
+            initial=default_config['engel_ticket:double_booking:messages'],
             widget=I18nTextInput,
         )
 
-        self.fields["engel_ticket_names:no_shift:messages"] = I18nFormField(
+        self.fields["engel_ticket:no_shift:messages"] = I18nFormField(
             label='Error message for Engels without shifts',
             required=False,
             locales=self.obj.settings.locales,
-            initial=LazyI18nString.from_gettext(
-                gettext_noop("Make sure you are enrolled in a shift at engelsystem.hpi.de before you buy a helper ticket.")
-            ),
+            initial=default_config['engel_ticket:no_shift:messages'],
             widget=I18nTextInput,
         )
 

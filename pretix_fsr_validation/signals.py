@@ -11,7 +11,7 @@ from pretix.presale.signals import (
     question_form_fields_overrides,
 )
 from pretix.base.services.cart import CartError
-from pretix.base.services.orders import OrderError
+from pretix.base.services.orders import OrderError, Order
 from django.core.exceptions import ValidationError
 import json
 from i18nfield.utils import I18nJSONEncoder
@@ -99,7 +99,7 @@ def get_config(event):
 def tries_to_double_book_engel_ticket(event, email):
     # email should be normalized with normalize_hpi_email
     for order in event.orders.all():
-        if order.email == email:
+        if order.email == email and order.status != Order.STATUS_CANCELED and order.status != Order.STATUS_EXPIRED:
             for position in order.positions.all():
                 if position_is_engel_ticket(event, position):
                     return True

@@ -31,7 +31,7 @@ setup(
     description="Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam",
     long_description=long_description,
     url="https://github.com/BenBals/pretix-fsr-validation/",
-    author="pretix team",
+    author="Ben Bals",
     author_email="benbals@posteo.de",
     license="Apache",
     install_requires=[],

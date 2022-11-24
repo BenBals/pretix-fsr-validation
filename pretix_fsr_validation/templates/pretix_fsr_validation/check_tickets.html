@@ -1,0 +1,12 @@
+{% extends "pretixcontrol/event/settings_base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% block inside %}
+    <h1>{% trans "FSR Validation" %}</h1>
+    <h2>{% trans "Fallen Angels" %}</h2>
+    <ul>
+    {% for email in fallen_angels %}
+        <li>{{ email }}</li>
+    {% endfor %}
+    <ul>
+{% endblock %}

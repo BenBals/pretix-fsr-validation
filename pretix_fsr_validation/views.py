@@ -5,11 +5,11 @@ from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _, gettext_noop
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from django.views import View
 from i18nfield.forms import I18nFormField, I18nTextInput
 from i18nfield.strings import LazyI18nString
@@ -111,8 +111,9 @@ class SettingsView(EventSettingsViewMixin, FormView):
             )
             return self.render_to_response(self.get_context_data(form=form))
 
-class CheckTicketsView(EventSettingsViewMixin, View):
+class CheckTicketsView(EventSettingsViewMixin, TemplateView):
     model = Event
+    template_name = "pretix_fsr_validation/check_tickets.html"
 
     def get(self, request, *args, **kwargs):
         fallen_angels = []
@@ -129,4 +130,5 @@ class CheckTicketsView(EventSettingsViewMixin, View):
             if not signals.is_engel(config, order.email):
                 fallen_angels.append(order.email)
 
-        return HttpResponse(json.dumps(fallen_angels))
+        return render(request, self.template_name, {'fallen_angels': fallen_angels})
+        # return HttpResponse(json.dumps(fallen_angels))

@@ -22,7 +22,8 @@ class PluginApp(PluginConfig):
         compatibility = "pretix>=3.18.0.dev0"
 
     def ready(self):
-        print("Running fsr validation ready")
+        script_path = Path( __file__ ).absolute()
+        print("Running fsr validation ready from " script_path)
         from . import signals  # NOQA
 
 

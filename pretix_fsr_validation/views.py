@@ -10,13 +10,15 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _, gettext_noop
 from django.views.generic import FormView
+from django.views import View
 from i18nfield.forms import I18nFormField, I18nTextInput
 from i18nfield.strings import LazyI18nString
 from i18nfield.utils import I18nJSONEncoder
 from pretix.base.models import Event, Question
 from pretix.control.views.event import EventSettingsViewMixin
+from django.http import HttpResponse
 
-from pretix_fsr_validation.signals import default_config
+import pretix_fsr_validation.signals as signals
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,7 @@ class FsrValidationSettingsForm(forms.Form):
             label='Error message for Engel double booking',
             required=False,
             locales=self.obj.settings.locales,
-            initial=default_config['engel_ticket:double_booking:messages'],
+            initial=signals.default_config['engel_ticket:double_booking:messages'],
             widget=I18nTextInput,
         )
 
@@ -50,13 +52,13 @@ class FsrValidationSettingsForm(forms.Form):
             label='Error message for Engels without shifts',
             required=False,
             locales=self.obj.settings.locales,
-            initial=default_config['engel_ticket:no_shift:messages'],
+            initial=signals.default_config['engel_ticket:no_shift:messages'],
             widget=I18nTextInput,
         )
 
         self.fields["engelsystem:url"] = forms.CharField(
             label="Engelsystem URL",
-            initial=default_config['engelsystem:url'],
+            initial=signals.default_config['engelsystem:url'],
             required=True,
         )
 
@@ -108,3 +110,23 @@ class SettingsView(EventSettingsViewMixin, FormView):
                 _("We could not save your changes. See below for details."),
             )
             return self.render_to_response(self.get_context_data(form=form))
+
+class CheckTicketsView(EventSettingsViewMixin, View):
+    model = Event
+
+    def get(self, request, *args, **kwargs):
+        fallen_angels = []
+        config = signals.get_config(request.event)
+
+        engel_orders = []
+
+        for order in request.event.orders.all():
+            for position in order.positions.all():
+                if signals.position_is_engel_ticket(request.event, position):
+                    engel_orders.append(order)
+
+        for order in engel_orders:
+            if not signals.is_engel(config, order.email):
+                fallen_angels.append(order.email)
+
+        return HttpResponse(json.dumps(fallen_angels))

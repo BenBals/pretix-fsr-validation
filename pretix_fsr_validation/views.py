@@ -54,6 +54,18 @@ class FsrValidationSettingsForm(forms.Form):
             widget=I18nTextInput,
         )
 
+        self.fields["engelsystem:url"] = forms.CharField(
+            label="Engelsystem URL",
+            initial=default_config['engelsystem:url'],
+            required=True,
+        )
+
+        self.fields["engelsystem:api_key"] = forms.CharField(
+            label="Engelsystem API Key",
+            required=True,
+        )
+
+
 class SettingsView(EventSettingsViewMixin, FormView):
     model = Event
     form_class = FsrValidationSettingsForm

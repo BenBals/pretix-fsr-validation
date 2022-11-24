@@ -23,7 +23,7 @@ class PluginApp(PluginConfig):
 
     def ready(self):
         script_path = Path( __file__ ).absolute()
-        print("Running fsr validation ready from " script_path)
+        print("Running fsr validation ready from ", script_path)
         from . import signals  # NOQA
 
 

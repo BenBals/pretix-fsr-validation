@@ -1,22 +1,21 @@
-from django.core.validators import RegexValidator
+import json
+import re
+
+import requests
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.urls import resolve, reverse
 from django.utils.translation import gettext_lazy as _
 from i18nfield.strings import LazyI18nString
+from i18nfield.utils import I18nJSONEncoder
+
+from pretix.base.services.orders import Order
 from pretix.base.settings import settings_hierarkey
 from pretix.control.signals import nav_event_settings
-from pretix.base.signals import validate_cart, validate_order
 from pretix.presale.signals import (
     contact_form_fields_overrides,
-    question_form_fields_overrides,
 )
-from pretix.base.services.cart import CartError
-from pretix.base.services.orders import OrderError, Order
-from django.core.exceptions import ValidationError
-import json
-from i18nfield.utils import I18nJSONEncoder
-import re
-import requests
+from pretix.presale.views import get_cart
 
 
 @receiver(nav_event_settings, dispatch_uid="fsr_validation_nav")
@@ -58,7 +57,6 @@ def fsr_email_overwrite(sender, request, **kwargs):
 
 def may_order_validator_for_request(event, request, message):
     def validator(email):
-        print("Validating mail!")
         email = normalize_hpi_email(email)
         config = get_config(event)
 
@@ -73,16 +71,16 @@ def may_order_validator_for_request(event, request, message):
                     LazyI18nString(config.get("engel_ticket:no_shift:messages"))
                 )
 
-
-
     return validator
 
 
 def cart_contains_engel_ticket(event, request):
     does = False
 
+    cart = get_cart(request)
+
     # TODO Maybe rewrite to any(lambda: ...)
-    for position in request.event.cartposition_set.all():
+    for position in cart:
         if position_is_engel_ticket(event, position):
             does = True
 
@@ -91,20 +89,14 @@ def cart_contains_engel_ticket(event, request):
 
 def is_engel(config, email):
     for possible_email in list_of_possible_hpi_email(email):
-        print("checking mail ", possible_email)
         if check_email_in_engelsystem(config, possible_email):
-            print("is an engle with email ", possible_email)
             return True
-        print("is not an engle with email ", possible_email)
-
-    if email == "johannes.wolf@student.hpi.de":
-        return True
     return False
+
 
 def check_email_in_engelsystem(config, email):
     headers = {'api_key': config.get('engelsystem:api_key')}
     x = requests.get(f"{config.get('engelsystem:url')}/api/usershifts/{email}", headers=headers)
-    print(x)
     if x.status_code != 200:
         return False
     try:
@@ -131,10 +123,13 @@ def tries_to_double_book_engel_ticket(event, email):
 
 def position_is_engel_ticket(event, position):
     helper_ticket_names = get_config(event).get("engel_ticket_names").lower().split(',')
-    return position.item.name.localize('en').lower() in helper_ticket_names
+    ticket_name = position.item.name.localize('en').lower()
+    return ticket_name in helper_ticket_names
+
 
 def is_hpi_email(email):
     return re.search(".*(@hpi.de|@student.hpi.de|@hpi.uni-potsdam.de|@student.hpi.uni-potsdam.de)$", email) is not None
+
 
 def normalize_hpi_email(email):
     if is_hpi_email(email):
@@ -142,11 +137,13 @@ def normalize_hpi_email(email):
     else:
         return email
 
+
 def list_of_possible_hpi_email(email):
     if is_hpi_email(email):
         return [normalize_hpi_email(email), normalize_hpi_email(email).replace(".hpi.de", ".hpi.uni-potsdam.de")]
     else:
         return [email]
+
 
 default_config = {
     'engel_ticket_names': 'Helper ticket',

@@ -1,0 +1,39 @@
+[project]
+name = "pretix-fsr-validation"
+dynamic = ["version"]
+description = "Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["pretix", "fsr-de"]
+authors = [
+    {name = "Ben Bals", email = "benbals@posteo.de"},
+]
+maintainers = [
+    {name = "Ben Bals", email = "benbals@posteo.de"},
+]
+
+[project.entry-points."pretix.plugin"]
+pretix_fsr_validation = "pretix_fsr_validation:PretixPluginMeta"
+
+[project.entry-points."distutils.commands"]
+build = "pretix_plugin_build.build:CustomBuild"
+
+[build-system]
+requires = [
+    "setuptools",
+    "pretix-plugin-build",
+]
+
+[project.urls]
+homepage = "https://github.com/benbals/pretix-fsr-validation"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretix_fsr_validation.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretix*"]
+namespaces = false

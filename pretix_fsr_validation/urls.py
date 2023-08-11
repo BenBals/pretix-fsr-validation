@@ -1,15 +1,14 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import SettingsView, CheckTicketsView
 
 urlpatterns = [
-    url(
+    re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/fsr-validation/$",
         SettingsView.as_view(),
         name="settings",
     ),
-
-url(
+    re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/fsr-validation/check-tickets$",
         CheckTicketsView.as_view(),
         name="check-tickets",

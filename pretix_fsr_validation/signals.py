@@ -47,7 +47,7 @@ def fsr_email_overwrite(sender, request, **kwargs):
     o = {
         "email": {
             "validators": [
-                may_order_validator_for_request(sender, request, "TODO You are bad.")
+                may_order_validator_for_request(sender, request)
             ]
         }
     }
@@ -55,12 +55,13 @@ def fsr_email_overwrite(sender, request, **kwargs):
     return o
 
 
-def may_order_validator_for_request(event, request, message):
+def may_order_validator_for_request(event, request):
     def validator(email):
         email = normalize_hpi_email(email)
         config = get_config(event)
+        cart = get_cart(request)
 
-        if cart_contains_engel_ticket(event, request):
+        if cart_contains_unverified_engel_ticket(event, cart):
             if tries_to_double_book_engel_ticket(event, email):
                 raise ValidationError(
                     LazyI18nString(config.get("engel_ticket:double_booking:messages"))
@@ -74,14 +75,12 @@ def may_order_validator_for_request(event, request, message):
     return validator
 
 
-def cart_contains_engel_ticket(event, request):
+def cart_contains_unverified_engel_ticket(event, cart):
     does = False
-
-    cart = get_cart(request)
 
     # TODO Maybe rewrite to any(lambda: ...)
     for position in cart:
-        if position_is_engel_ticket(event, position):
+        if position_is_unverified_engel_ticket(event, position):
             does = True
 
     return does
@@ -115,15 +114,27 @@ def tries_to_double_book_engel_ticket(event, email):
     for order in event.orders.all():
         if order.email == email and order.status != Order.STATUS_CANCELED and order.status != Order.STATUS_EXPIRED:
             for position in order.positions.all():
-                if position_is_engel_ticket(event, position):
+                if position_is_unverified_engel_ticket(event, position):
                     return True
 
     return False
 
 
-def position_is_engel_ticket(event, position):
+def position_has_engel_voucher(event, position):
+    config = get_config(event)
+    code = position.voucher.code
+    prefix = config.get('engel_voucher:prefix')
+    if code is None or prefix is None:
+        return False
+    return code.startswith(prefix)
+
+
+def position_is_unverified_engel_ticket(event, position):
     helper_ticket_names = get_config(event).get("engel_ticket_names").lower().split(',')
     ticket_name = position.item.name.localize('en').lower()
+    if position_has_engel_voucher(event, position):
+        return False
+    print("Voucher", position.voucher)
     return ticket_name in helper_ticket_names
 
 
@@ -157,7 +168,8 @@ default_config = {
         # TODO: Why does it not default correctly?
         'de-informal': 'Du hast schon ein Engelticket gekauft. Wenn Du weitere Tickets möchtest, wähle bitte normale Tickets.'
     }),
-    'engelsystem:url': 'https://engelsystem.myhpi.de'
+    'engelsystem:url': 'https://engelsystem.myhpi.de',
+    'engel_voucher:prefix': 'ENGEL-'
 }
 
 settings_hierarkey.add_default("fsr_validation_config", json.dumps(default_config, cls=I18nJSONEncoder), dict)

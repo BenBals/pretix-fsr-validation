@@ -67,6 +67,12 @@ class FsrValidationSettingsForm(forms.Form):
             required=True,
         )
 
+        self.fields["engel_voucher:prefix"] = forms.CharField(
+            label="Orders with a voucher with this prefix are allowed to buy engel tickets",
+            initial=signals.default_config['engel_voucher:prefix'],
+            required=False,
+        )
+
 
 class SettingsView(EventSettingsViewMixin, FormView):
     model = Event

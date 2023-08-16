@@ -122,6 +122,8 @@ def tries_to_double_book_engel_ticket(event, email):
 
 def position_has_engel_voucher(event, position):
     config = get_config(event)
+    if position.voucher is None:
+        return False
     code = position.voucher.code
     prefix = config.get('engel_voucher:prefix')
     if code is None or prefix is None:

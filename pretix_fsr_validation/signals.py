@@ -162,12 +162,10 @@ default_config = {
     'engel_ticket_names': 'Helper ticket',
     'engel_ticket:no_shift:messages': LazyI18nString({
         'en': 'Make sure you are enrolled in a shift at engelsystem.hpi.de before you buy a helper ticket.',
-        # TODO: Why does it not default correctly?
         'de-informal': 'Wir können Dich nicht im Engelsystem finden. Bitte stelle sicher, dass Du Dich unter engelsystem.hpi.de für eine Schicht eingetragen hast, bevor Du ein Ticket kaufst.'
     }),
     'engel_ticket:double_booking:messages': LazyI18nString({
         'en': 'You have previously bought a helper ticket. If you want more tickets, please buy normal tickets.',
-        # TODO: Why does it not default correctly?
         'de-informal': 'Du hast schon ein Engelticket gekauft. Wenn Du weitere Tickets möchtest, wähle bitte normale Tickets.'
     }),
     'engelsystem:url': 'https://engelsystem.myhpi.de',

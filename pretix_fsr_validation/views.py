@@ -80,6 +80,15 @@ class SettingsView(EventSettingsViewMixin, FormView):
     template_name = "pretix_fsr_validation/settings.html"
     permission = "can_change_event_settings"
 
+    def get_check_tickets_url(self) -> str:
+        return reverse(
+            "plugins:pretix_fsr_validation:check-tickets",
+            kwargs={
+                "organizer": self.request.event.organizer.slug,
+                "event": self.request.event.slug,
+            },
+        )
+
     def get_success_url(self) -> str:
         return reverse(
             "plugins:pretix_fsr_validation:settings",
@@ -94,6 +103,12 @@ class SettingsView(EventSettingsViewMixin, FormView):
         kwargs["obj"] = self.request.event
         kwargs["initial"] = self.request.event.settings.fsr_validation_config
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        """Insert the form into the context dict."""
+        if "check_tickets_url" not in kwargs:
+            kwargs["check_tickets_url"] = self.get_check_tickets_url()
+        return super().get_context_data(**kwargs)
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -129,7 +144,7 @@ class CheckTicketsView(EventSettingsViewMixin, TemplateView):
 
         for order in request.event.orders.all():
             for position in order.positions.all():
-                if signals.position_is_engel_ticket(request.event, position):
+                if signals.position_is_unverified_engel_ticket(request.event, position):
                     engel_orders.append(order)
 
         for order in engel_orders:

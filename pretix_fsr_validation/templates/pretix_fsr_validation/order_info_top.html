@@ -1,0 +1,20 @@
+{% load i18n %}
+{% load bootstrap3 %}
+
+<div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                {% trans "Ticket download." %}
+            </h3>
+        </div>
+        <div class="panel-body text-center">
+            <h4>
+                <span class="fa fa-envelope text-muted fa-2x" aria-hidden="true"></span><br><br>
+                {% if event.settings.mail_attach_tickets %}
+                    {% trans "We've sent you your helper ticket via email." %}
+                {% else %}
+                    {% trans "You can download your helper ticket after verifying your email address via the link we've just sent you." %}
+                {% endif %}
+            </h4>
+        </div>
+    </div>

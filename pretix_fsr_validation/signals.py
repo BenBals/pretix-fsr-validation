@@ -1,19 +1,28 @@
 import json
 import re
-
+import inspect
 import requests
+
 from django.core.exceptions import ValidationError
+from django.contrib import messages
 from django.dispatch import receiver
+from django.http import HttpRequest
+from django.template.loader import render_to_string
 from django.urls import resolve, reverse
+from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from i18nfield.strings import LazyI18nString
 from i18nfield.utils import I18nJSONEncoder
 
+from pretix.base.models.customers import CustomerSSOProvider
 from pretix.base.services.orders import Order
 from pretix.base.settings import settings_hierarkey
+from pretix.base.customersso.oidc import oidc_authorize_url
+from pretix.base.signals import allow_ticket_download
 from pretix.control.signals import nav_event_settings
+from pretix.multidomain.urlreverse import build_absolute_uri
 from pretix.presale.signals import (
-    contact_form_fields_overrides,
+    contact_form_fields_overrides, order_info_top,
 )
 from pretix.presale.views import get_cart
 
@@ -53,6 +62,30 @@ def fsr_email_overwrite(sender, request, **kwargs):
     }
 
     return o
+
+
+@receiver(allow_ticket_download, dispatch_uid="fsr_validation_allow_ticket_download")
+def fsr_validation_allow_ticket_download(sender, order, **kwargs):
+   return allow_ticket_download_helper(sender, order)
+
+@receiver(order_info_top, dispatch_uid="fsr_validation_order_info_top")
+def fsr_validation_order_info_top(sender, order, request, **kwargs):
+    allow_download = allow_ticket_download_helper(sender, order, ignore_call_origin=True)
+    if allow_download is not True and len(list(allow_download)) != order.positions.count():
+        return render_to_string("pretix_fsr_validation/order_info_top.html")
+    return None
+
+
+def allow_ticket_download_helper(event, order, ignore_call_origin=False):
+    config = get_config(event)
+    # Only enforce this setting on customer facing order pages, not for emails
+    is_from_order_page = any(map(lambda frame: frame.function == 'get_context_data', inspect.stack()))
+    if config.get('engel_ticket:allow_ticket_download_without_email_verification'):
+        return True
+    if order.email_known_to_work or (not is_from_order_page and not ignore_call_origin):
+        return True
+
+    return filter(lambda position: not position_is_engel_ticket(event, position), order.positions.all())
 
 
 def may_order_validator_for_request(event, request):
@@ -132,11 +165,12 @@ def position_has_engel_voucher(event, position):
 
 
 def position_is_unverified_engel_ticket(event, position):
+    return position_is_engel_ticket(event, position) and not position_has_engel_voucher(event, position)
+
+
+def position_is_engel_ticket(event, position):
     helper_ticket_names = get_config(event).get("engel_ticket_names").lower().split(',')
     ticket_name = position.item.name.localize('en').lower()
-    if position_has_engel_voucher(event, position):
-        return False
-    print("Voucher", position.voucher)
     return ticket_name in helper_ticket_names
 
 
@@ -169,7 +203,8 @@ default_config = {
         'de-informal': 'Du hast schon ein Engelticket gekauft. Wenn Du weitere Tickets möchtest, wähle bitte normale Tickets.'
     }),
     'engelsystem:url': 'https://engelsystem.myhpi.de',
-    'engel_voucher:prefix': 'ENGEL-'
+    'engel_voucher:prefix': 'ENGEL-',
+    'engel_ticket:allow_ticket_download_without_email_verification': False,
 }
 
 settings_hierarkey.add_default("fsr_validation_config", json.dumps(default_config, cls=I18nJSONEncoder), dict)

@@ -73,6 +73,13 @@ class FsrValidationSettingsForm(forms.Form):
             required=False,
         )
 
+        self.fields["engel_ticket:allow_ticket_download_without_email_verification"] = forms.BooleanField(
+            label="Allow downloading engel tickets without email verification",
+            help_text='This only applies to order pages. In emails, tickets will always be send as per the event settings',
+            initial=signals.default_config['engel_ticket:allow_ticket_download_without_email_verification'],
+            required=False,
+        )
+
 
 class SettingsView(EventSettingsViewMixin, FormView):
     model = Event
@@ -132,6 +139,7 @@ class SettingsView(EventSettingsViewMixin, FormView):
             )
             return self.render_to_response(self.get_context_data(form=form))
 
+
 class CheckTicketsView(EventSettingsViewMixin, TemplateView):
     model = Event
     template_name = "pretix_fsr_validation/check_tickets.html"
@@ -152,4 +160,3 @@ class CheckTicketsView(EventSettingsViewMixin, TemplateView):
                 fallen_angels.append(order.email)
 
         return render(request, self.template_name, {'fallen_angels': fallen_angels})
-        # return HttpResponse(json.dumps(fallen_angels))

@@ -1,7 +1,7 @@
 [project]
 name = "pretix-fsr-validation"
 dynamic = ["version"]
-description = "Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam"
+description = "Custom validation for orders built for the FSR Digital Engineering at Uni Potsdam"
 readme = "README.rst"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}

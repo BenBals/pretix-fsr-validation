@@ -11,7 +11,7 @@ class PluginApp(AppConfig):
     class PretixPluginMeta:
         name = gettext_lazy("FSR Validation")
         author = "Ben Bals"
-        description = gettext_lazy("Custom validation for orders built for the FSR Digital Engineering an Uni Potsdam")
+        description = gettext_lazy("Custom validation for orders built for the FSR Digital Engineering at Uni Potsdam")
         visible = True
         version = __version__
         category = "CUSTOMIZATION"

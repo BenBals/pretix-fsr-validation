@@ -127,6 +127,9 @@ def is_engel(config, email):
 
 
 def check_email_in_engelsystem(config, email):
+    # TODO: Remove before committing
+    return True
+
     headers = {'api_key': config.get('engelsystem:api_key')}
     x = requests.get(f"{config.get('engelsystem:url')}/api/usershifts/{email}", headers=headers)
     if x.status_code != 200:

@@ -56,14 +56,14 @@ class FsrValidationSettingsForm(forms.Form):
             widget=I18nTextInput,
         )
 
-        self.fields["engelsystem:url"] = forms.CharField(
-            label="Engelsystem URL",
-            initial=signals.default_config['engelsystem:url'],
+        self.fields["ephios:url"] = forms.CharField(
+            label="Ephios URL",
+            initial=signals.default_config['ephios:url'],
             required=True,
         )
 
-        self.fields["engelsystem:api_key"] = forms.CharField(
-            label="Engelsystem API Key",
+        self.fields["ephios:api_key"] = forms.CharField(
+            label="Ephios API Key",
             required=True,
         )
 
@@ -79,6 +79,21 @@ class FsrValidationSettingsForm(forms.Form):
             initial=signals.default_config['engel_ticket:allow_ticket_download_without_email_verification'],
             required=False,
         )
+
+        self.fields["shifts:after"] = forms.DateField(
+            label="Shifts start",
+            help_text="Only consider shifts after this date time  when determining engel ticket eligibility",
+            initial=signals.default_config['shifts:after'],
+            required=False
+        )
+
+        self.fields["shifts:before"] = forms.DateField(
+            label="Shifts end",
+            help_text="Only consider shifts before this date time when determining engel ticket eligibility",
+            initial=signals.default_config['shifts:before'],
+            required=False
+        )
+
 
 
 class SettingsView(EventSettingsViewMixin, FormView):

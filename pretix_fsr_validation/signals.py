@@ -2,6 +2,7 @@ import json
 import re
 import inspect
 import requests
+from urllib.parse import quote, urlencode
 
 from django.core.exceptions import ValidationError
 from django.contrib import messages
@@ -125,13 +126,34 @@ def is_engel(config, email):
             return True
     return False
 
+def perform_ephios_request(config, path):
+    headers = {'Authorization': f"Bearer {config.get('ephios:api_key')}"}
+    return requests.get(f"{config.get('ephios:url')}/{path}", headers=headers)
+
 
 def check_email_in_engelsystem(config, email):
-    # TODO: Remove before committing
-    return True
+    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email)}')
+    if ephios_user_response.status_code != 200:
+        return False
 
-    headers = {'api_key': config.get('engelsystem:api_key')}
-    x = requests.get(f"{config.get('engelsystem:url')}/api/usershifts/{email}", headers=headers)
+    ephios_user_id  = ephios_user_response.json().get("id")
+
+    shifts = perform_ephios_request(config, f"user/{quote(ephios_user_id)}/participations?{urlencode({
+        "limit": 1,
+        "from": config.get('shifts:after'),
+        "to":  config.get('shifts.before')
+    })}")
+
+    if shifts.status_code != 200:
+        return False
+    try:
+        if shifts.json().get("count") >= 1:
+            return True
+    except:
+        return False
+
+    headers = {'Authorization': f"Bearer {config.get('ephios:api_key')}"}
+    x = requests.get(f"{config.get('ephios:url')}/api/usershifts/{email}", headers=headers)
     if x.status_code != 200:
         return False
     try:
@@ -198,16 +220,18 @@ def list_of_possible_hpi_email(email):
 default_config = {
     'engel_ticket_names': 'Helper ticket',
     'engel_ticket:no_shift:messages': LazyI18nString({
-        'en': 'Make sure you are enrolled in a shift at engelsystem.hpi.de before you buy a helper ticket.',
-        'de-informal': 'Wir können Dich nicht im Engelsystem finden. Bitte stelle sicher, dass Du Dich unter engelsystem.hpi.de für eine Schicht eingetragen hast, bevor Du ein Ticket kaufst.'
+        'en': 'Make sure you are enrolled in a shift at shifts.hpi.de before you buy a helper ticket.',
+        'de-informal': 'Wir können Dich nicht im Engelsystem finden. Bitte stelle sicher, dass Du Dich unter shifts.hpi.de für eine Schicht eingetragen hast, bevor Du ein Ticket kaufst.'
     }),
     'engel_ticket:double_booking:messages': LazyI18nString({
         'en': 'You have previously bought a helper ticket. If you want more tickets, please buy normal tickets.',
         'de-informal': 'Du hast schon ein Engelticket gekauft. Wenn Du weitere Tickets möchtest, wähle bitte normale Tickets.'
     }),
-    'engelsystem:url': 'https://engelsystem.myhpi.de',
+    'ephios:url': 'https://shifts.myhpi.de/api',
     'engel_voucher:prefix': 'ENGEL-',
     'engel_ticket:allow_ticket_download_without_email_verification': False,
+    'shifts:before': None,
+    'shifts:after': None,
 }
 
 settings_hierarkey.add_default("fsr_validation_config", json.dumps(default_config, cls=I18nJSONEncoder), dict)

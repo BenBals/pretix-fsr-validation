@@ -132,13 +132,13 @@ def perform_ephios_request(config, path):
 
 
 def check_email_in_engelsystem(config, email):
-    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email)}/')
+    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email, safe='')}/')
     if ephios_user_response.status_code != 200:
         return False
 
     ephios_user_id  = ephios_user_response.json().get("id")
 
-    shifts = perform_ephios_request(config, f"users/{quote(str(ephios_user_id))}/participations?{urlencode({
+    shifts = perform_ephios_request(config, f"users/{quote(str(ephios_user_id), safe='')}/participations?{urlencode({
         "limit": 1,
         # "from": config.get('shifts:after'), ## Not implemented in Ephios yet
         # "to":  config.get('shifts.before')

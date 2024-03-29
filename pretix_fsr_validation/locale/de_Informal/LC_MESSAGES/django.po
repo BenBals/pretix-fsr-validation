@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 19:01+0100\n"
+"POT-Creation-Date: 2024-03-29 21:30+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: pretix team\n"
 "Language-Team: \n"
@@ -10,3 +10,63 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: pretix_fsr_validation/apps.py:12 pretix_fsr_validation/signals.py:40
+#: pretix_fsr_validation/templates/pretix_fsr_validation/check_tickets.html:5
+#: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:5
+#: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:10
+msgid "FSR Validation"
+msgstr "FSR Validation"
+
+#: pretix_fsr_validation/apps.py:14
+msgid ""
+"Custom validation for orders built for the FSR Digital Engineering at Uni "
+"Potsdam"
+msgstr ""
+"Handgeschneiderte Bestellungsvalidierung für den FSR Digital Engineering an "
+"der Uni Potsdam"
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/check_tickets.html:6
+msgid "Fallen Angels"
+msgstr "Gefallene Engel"
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/order_info_top.html:7
+msgid "Ticket download"
+msgstr "Ticket-Download"
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/order_info_top.html:14
+msgid "We've sent you your helper ticket via email."
+msgstr "Wir haben dir dein Engelticket per Mail geschickt."
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/order_info_top.html:16
+msgid ""
+"You can download your helper ticket after verifying your email address via "
+"the link we've just sent you."
+msgstr "Du kannst dein Engelticket runterladen, nachdem du deine E-Mail-Adresse"
+"mit dem Link, den wir dir gerade geschickt haben, verifiziert hast."
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:16
+msgid "Save"
+msgstr "Speichern"
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:21
+msgid ""
+"To check if all buyers of Engel tickets, currently hold shifts, use the "
+msgstr "Um zu überprüfen, ob alle aktuellen Engelticketbesitzer*innen auch"
+"Schichten haben, nutze die"
+
+#: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:22
+msgid "Check Engel Tickets Page"
+msgstr "Engelticketüberprüfungsseite"
+
+#: pretix_fsr_validation/views.py:30
+msgid "Not a valid Python regular expression."
+msgstr "Keine gültige Python RegEx"
+
+#: pretix_fsr_validation/views.py:150
+msgid "Your changes have been saved."
+msgstr "Deine Änderungen wurden gespeichert."
+
+#: pretix_fsr_validation/views.py:155
+msgid "We could not save your changes. See below for details."
+msgstr "Wir konnten Deine Änderungen nicht speichern. Siehe unten."

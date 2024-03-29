@@ -132,17 +132,17 @@ def perform_ephios_request(config, path):
 
 
 def check_email_in_engelsystem(config, email):
-    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email)}')
+    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email)}/')
     if ephios_user_response.status_code != 200:
         return False
 
     ephios_user_id  = ephios_user_response.json().get("id")
 
-    shifts = perform_ephios_request(config, f"user/{quote(ephios_user_id)}/participations?{urlencode({
+    shifts = perform_ephios_request(config, f"users/{quote(str(ephios_user_id))}/participations?{urlencode({
         "limit": 1,
-        "from": config.get('shifts:after'),
-        "to":  config.get('shifts.before')
-    })}")
+        # "from": config.get('shifts:after'), ## Not implemented in Ephios yet
+        # "to":  config.get('shifts.before')
+    })}/")
 
     if shifts.status_code != 200:
         return False
@@ -151,17 +151,6 @@ def check_email_in_engelsystem(config, email):
             return True
     except:
         return False
-
-    headers = {'Authorization': f"Bearer {config.get('ephios:api_key')}"}
-    x = requests.get(f"{config.get('ephios:url')}/api/usershifts/{email}", headers=headers)
-    if x.status_code != 200:
-        return False
-    try:
-        if x.json().get("count") >= 1:
-            return True
-    except:
-        return False
-
 
 def get_config(event):
     return event.settings.fsr_validation_config

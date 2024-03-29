@@ -80,19 +80,21 @@ class FsrValidationSettingsForm(forms.Form):
             required=False,
         )
 
-        self.fields["shifts:after"] = forms.DateField(
-            label="Shifts start",
-            help_text="Only consider shifts after this date time  when determining engel ticket eligibility",
-            initial=signals.default_config['shifts:after'],
-            required=False
-        )
+        ## Not implemented in Ephios yet
 
-        self.fields["shifts:before"] = forms.DateField(
-            label="Shifts end",
-            help_text="Only consider shifts before this date time when determining engel ticket eligibility",
-            initial=signals.default_config['shifts:before'],
-            required=False
-        )
+        # self.fields["shifts:after"] = forms.DateField(
+        #     label="Shifts start",
+        #     help_text="Only consider shifts after this date time  when determining engel ticket eligibility",
+        #     initial=signals.default_config['shifts:after'],
+        #     required=False
+        # )
+        #
+        # self.fields["shifts:before"] = forms.DateField(
+        #     label="Shifts end",
+        #     help_text="Only consider shifts before this date time when determining engel ticket eligibility",
+        #     initial=signals.default_config['shifts:before'],
+        #     required=False
+        # )
 
 
 

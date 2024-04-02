@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import re
@@ -14,6 +15,8 @@ from django.views import View
 from i18nfield.forms import I18nFormField, I18nTextInput
 from i18nfield.strings import LazyI18nString
 from i18nfield.utils import I18nJSONEncoder
+
+from pretix.base.forms.widgets import SplitDateTimePickerWidget
 from pretix.base.models import Event, Question
 from pretix.control.views.event import EventSettingsViewMixin
 from django.http import HttpResponse
@@ -30,18 +33,22 @@ def valid_regex(val):
         raise ValidationError(_("Not a valid Python regular expression."))
 
 
+def datetime_to_isoformat(dt):
+    return dt.astimezone().isoformat()
+
+
 class FsrValidationSettingsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.obj = kwargs.pop("obj")
         super().__init__(*args, **kwargs)
 
         self.fields["engel_ticket_names"] = forms.CharField(
-            label="Which tickets should be restricted to Engels? (Comma-seperated list of English names)",
+            label=_("Which tickets should be restricted to Engels? (Comma-seperated list of English names)"),
             required=False,
         )
 
         self.fields["engel_ticket:double_booking:messages"] = I18nFormField(
-            label='Error message for Engel double booking',
+            label=_('Error message for Engel double booking'),
             required=False,
             locales=self.obj.settings.locales,
             initial=signals.default_config['engel_ticket:double_booking:messages'],
@@ -49,7 +56,7 @@ class FsrValidationSettingsForm(forms.Form):
         )
 
         self.fields["engel_ticket:no_shift:messages"] = I18nFormField(
-            label='Error message for Engels without shifts',
+            label=_('Error message for Engels without shifts'),
             required=False,
             locales=self.obj.settings.locales,
             initial=signals.default_config['engel_ticket:no_shift:messages'],
@@ -68,34 +75,43 @@ class FsrValidationSettingsForm(forms.Form):
         )
 
         self.fields["engel_voucher:prefix"] = forms.CharField(
-            label="Orders with a voucher with this prefix are allowed to buy engel tickets",
+            label=_("Orders with a voucher with this prefix are allowed to buy engel tickets"),
             initial=signals.default_config['engel_voucher:prefix'],
             required=False,
         )
 
         self.fields["engel_ticket:allow_ticket_download_without_email_verification"] = forms.BooleanField(
-            label="Allow downloading engel tickets without email verification",
-            help_text='This only applies to order pages. In emails, tickets will always be send as per the event settings',
+            label=_("Allow downloading engel tickets without email verification"),
+            help_text=_(
+                'This only applies to order pages. In emails, tickets will always be send as per the event settings'),
             initial=signals.default_config['engel_ticket:allow_ticket_download_without_email_verification'],
             required=False,
         )
 
-        ## Not implemented in Ephios yet
+        self.fields["shifts:after"] = forms.SplitDateTimeField(
+            label=_("Shifts starts after"),
+            help_text=_("Only consider shifts after this date time  when determining engel ticket eligibility"),
+            initial=signals.default_config['shifts:after'],
+            required=False,
+            widget = SplitDateTimePickerWidget(),
+            validators=[datetime_to_isoformat]
+        )
 
-        # self.fields["shifts:after"] = forms.DateField(
-        #     label="Shifts start",
-        #     help_text="Only consider shifts after this date time  when determining engel ticket eligibility",
-        #     initial=signals.default_config['shifts:after'],
-        #     required=False
-        # )
-        #
-        # self.fields["shifts:before"] = forms.DateField(
-        #     label="Shifts end",
-        #     help_text="Only consider shifts before this date time when determining engel ticket eligibility",
-        #     initial=signals.default_config['shifts:before'],
-        #     required=False
-        # )
+        self.fields["shifts:before"] = forms.SplitDateTimeField(
+            label=_("Shift starts before"),
+            help_text=_("Only consider shifts before this date time when determining engel ticket eligibility"),
+            initial=signals.default_config['shifts:before'],
+            required=False,
+            widget = SplitDateTimePickerWidget(),
+            validators=[datetime_to_isoformat]
+        )
 
+        self.fields["shifts:ephios_event_types"] = forms.CharField(
+            label=_(
+                "Which ephios event types should count towards Engel status? (Comma-seperated list of ids)"),
+            help_text=_('Leave empty to allow all types'),
+            required=False,
+        )
 
 
 class SettingsView(EventSettingsViewMixin, FormView):
@@ -123,9 +139,17 @@ class SettingsView(EventSettingsViewMixin, FormView):
         )
 
     def get_form_kwargs(self):
+        current_config = self.request.event.settings.fsr_validation_config
+
+        # Pretix settings are always converted to strings automatically…
+        if current_config["shifts:before"]:
+            current_config["shifts:before"] = datetime.datetime.fromisoformat(current_config["shifts:before"])
+        if current_config["shifts:after"]:
+            current_config["shifts:after"] = datetime.datetime.fromisoformat(current_config["shifts:after"])
+
         kwargs = super().get_form_kwargs()
         kwargs["obj"] = self.request.event
-        kwargs["initial"] = self.request.event.settings.fsr_validation_config
+        kwargs["initial"] = current_config
         return kwargs
 
     def get_context_data(self, **kwargs):

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-29 21:30+0100\n"
+"POT-Creation-Date: 2024-04-02 23:06+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: pretix team\n"
 "Language-Team: \n"
@@ -42,8 +42,9 @@ msgstr "Wir haben dir dein Engelticket per Mail geschickt."
 msgid ""
 "You can download your helper ticket after verifying your email address via "
 "the link we've just sent you."
-msgstr "Du kannst dein Engelticket runterladen, nachdem du deine E-Mail-Adresse"
-"mit dem Link, den wir dir gerade geschickt haben, verifiziert hast."
+msgstr ""
+"Du kannst dein Engelticket runterladen, nachdem du deine E-Mail-Adressemit "
+"dem Link, den wir dir gerade geschickt haben, verifiziert hast."
 
 #: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:16
 msgid "Save"
@@ -52,21 +53,81 @@ msgstr "Speichern"
 #: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:21
 msgid ""
 "To check if all buyers of Engel tickets, currently hold shifts, use the "
-msgstr "Um zu überprüfen, ob alle aktuellen Engelticketbesitzer*innen auch"
-"Schichten haben, nutze die"
+msgstr ""
+"Um zu überprüfen, ob alle aktuellen Engelticketbesitzer*innen auchSchichten "
+"haben, nutze die"
 
 #: pretix_fsr_validation/templates/pretix_fsr_validation/settings.html:22
 msgid "Check Engel Tickets Page"
 msgstr "Engelticketüberprüfungsseite"
 
-#: pretix_fsr_validation/views.py:30
+#: pretix_fsr_validation/views.py:33
 msgid "Not a valid Python regular expression."
 msgstr "Keine gültige Python RegEx"
 
-#: pretix_fsr_validation/views.py:150
+#: pretix_fsr_validation/views.py:46
+msgid ""
+"Which tickets should be restricted to Engels? (Comma-seperated list of "
+"English names)"
+msgstr ""
+
+#: pretix_fsr_validation/views.py:51
+msgid "Error message for Engel double booking"
+msgstr "Fehlermeldung bei doppelten Engelbuchungen"
+
+#: pretix_fsr_validation/views.py:59
+msgid "Error message for Engels without shifts"
+msgstr "Fehlermeldung für Engel ohne Schicht"
+
+#: pretix_fsr_validation/views.py:78
+msgid "Orders with a voucher with this prefix are allowed to buy engel tickets"
+msgstr "Bestellungen mit einem Gutschein, der mit diesem Prefix beginnt dürfen Engeltickets kaufen"
+
+#: pretix_fsr_validation/views.py:84
+msgid "Allow downloading engel tickets without email verification"
+msgstr "Erlaube Download von Engeltickets ohne Emailverifikation"
+
+#: pretix_fsr_validation/views.py:86
+msgid ""
+"This only applies to order pages. In emails, tickets will always be send as "
+"per the event settings"
+msgstr "Dies gilt nur für Bestellseiten. In E-Mails sind die Tickets immer "
+"entpreschend der Veranstalltungseinstellungen angehängt"
+
+#: pretix_fsr_validation/views.py:92
+msgid "Shifts starts after"
+msgstr "Schichtbeginn ab"
+
+#: pretix_fsr_validation/views.py:93
+msgid ""
+"Only consider shifts after this date time  when determining engel ticket "
+"eligibility"
+msgstr "Zähle nur Schichten ab diesem Zeitpunkt für den Engelstatus"
+
+#: pretix_fsr_validation/views.py:101
+msgid "Shift starts before"
+msgstr "Schichtbeginn vor"
+
+#: pretix_fsr_validation/views.py:102
+msgid ""
+"Only consider shifts before this date time when determining engel ticket "
+"eligibility"
+msgstr "Zähle nur Schichten bis zu diesem Zeitpunkt für den Engelstatus"
+
+#: pretix_fsr_validation/views.py:111
+msgid ""
+"Which ephios event types should count towards Engel status? (Comma-seperated "
+"list of ids)"
+msgstr "Welche ehpios Veranstaltungstypen sollen für den Engelstatus zählen? (Kommagetrennte Liste von Ids)"
+
+#: pretix_fsr_validation/views.py:112
+msgid "Leave empty to allow all types"
+msgstr "Leer lassen, um alle Typen zu erlauben"
+
+#: pretix_fsr_validation/views.py:174
 msgid "Your changes have been saved."
 msgstr "Deine Änderungen wurden gespeichert."
 
-#: pretix_fsr_validation/views.py:155
+#: pretix_fsr_validation/views.py:179
 msgid "We could not save your changes. See below for details."
 msgstr "Wir konnten Deine Änderungen nicht speichern. Siehe unten."

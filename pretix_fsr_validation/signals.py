@@ -67,7 +67,8 @@ def fsr_email_overwrite(sender, request, **kwargs):
 
 @receiver(allow_ticket_download, dispatch_uid="fsr_validation_allow_ticket_download")
 def fsr_validation_allow_ticket_download(sender, order, **kwargs):
-   return allow_ticket_download_helper(sender, order)
+    return allow_ticket_download_helper(sender, order)
+
 
 @receiver(order_info_top, dispatch_uid="fsr_validation_order_info_top")
 def fsr_validation_order_info_top(sender, order, request, **kwargs):
@@ -126,23 +127,28 @@ def is_engel(config, email):
             return True
     return False
 
+
 def perform_ephios_request(config, path):
     headers = {'Authorization': f"Bearer {config.get('ephios:api_key')}"}
     return requests.get(f"{config.get('ephios:url')}/{path}", headers=headers)
 
 
-def check_email_in_engelsystem(config, email):
-    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email, safe='')}/')
-    if ephios_user_response.status_code != 200:
-        return False
-
-    ephios_user_id  = ephios_user_response.json().get("id")
-
-    shifts = perform_ephios_request(config, f"users/{quote(str(ephios_user_id), safe='')}/participations?{urlencode({
+def check_event_type_in_ephios(config, ephios_user_id, event_type=None):
+    parameters = {
         "limit": 1,
-        # "from": config.get('shifts:after'), ## Not implemented in Ephios yet
-        # "to":  config.get('shifts.before')
-    })}/")
+    }
+
+    if event_type:
+        parameters["event_type"] = event_type
+
+    if config.get('shifts:after'):
+        parameters["start_gte"] = config.get('shifts:after')
+
+    if config.get('shifts:before'):
+        parameters["start_lte"] = config.get('shifts:before')
+
+    shifts = perform_ephios_request(config,
+                                    f"users/{quote(str(ephios_user_id), safe='')}/participations?{urlencode(parameters)}")
 
     if shifts.status_code != 200:
         return False
@@ -151,6 +157,22 @@ def check_email_in_engelsystem(config, email):
             return True
     except:
         return False
+
+
+def check_email_in_engelsystem(config, email):
+    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email, safe='')}/')
+    if ephios_user_response.status_code != 200:
+        return False
+
+    ephios_user_id = ephios_user_response.json().get("id")
+    ephios_event_types = list(map(lambda s: s.strip(), config.get("shifts:ephios_event_types").split(',')))
+
+    if ephios_event_types:
+        return any(
+            map(lambda event_type: check_event_type_in_ephios(config, ephios_user_id, event_type), ephios_event_types))
+    else:
+        return check_event_type_in_ephios(config, ephios_user_id)
+
 
 def get_config(event):
     return event.settings.fsr_validation_config
@@ -221,6 +243,7 @@ default_config = {
     'engel_ticket:allow_ticket_download_without_email_verification': False,
     'shifts:before': None,
     'shifts:after': None,
+    'shifts:ephios_event_types': None,
 }
 
 settings_hierarkey.add_default("fsr_validation_config", json.dumps(default_config, cls=I18nJSONEncoder), dict)

@@ -205,9 +205,10 @@ def position_is_unverified_engel_ticket(event, position):
 
 
 def position_is_engel_ticket(event, position):
-    helper_ticket_names = get_config(event).get("engel_ticket_names").lower().split(',')
-    ticket_name = position.item.name.localize('en').lower()
-    return ticket_name in helper_ticket_names
+    helper_ticket_names = get_config(event).get("engel_ticket_names")
+    if not isinstance(helper_ticket_names, list):
+        helper_ticket_names = helper_ticket_names.lower().split(',')
+    return str(position.item.pk) in helper_ticket_names
 
 
 def is_hpi_email(email):
@@ -229,7 +230,7 @@ def list_of_possible_hpi_email(email):
 
 
 default_config = {
-    'engel_ticket_names': 'Helper ticket',
+    'engel_ticket_names': [],
     'engel_ticket:no_shift:messages': LazyI18nString({
         'en': 'Make sure you are enrolled in a shift at shifts.hpi.de before you buy a helper ticket.',
         'de-informal': 'Wir können Dich nicht im Engelsystem finden. Bitte stelle sicher, dass Du Dich unter shifts.hpi.de für eine Schicht eingetragen hast, bevor Du ein Ticket kaufst.'

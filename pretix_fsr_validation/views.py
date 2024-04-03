@@ -6,6 +6,7 @@ from django import forms
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.forms import MultipleChoiceField, CheckboxSelectMultiple, SelectMultiple
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -42,10 +43,14 @@ class FsrValidationSettingsForm(forms.Form):
         self.obj = kwargs.pop("obj")
         super().__init__(*args, **kwargs)
 
-        self.fields["engel_ticket_names"] = forms.CharField(
-            label=_("Which tickets should be restricted to Engels? (Comma-seperated list of English names)"),
-            required=False,
-        )
+        product_choices = list(map(lambda product: (str(product.pk), product.name), self.obj.items.all()))
+
+        self.fields["engel_ticket_names"] = MultipleChoiceField(
+                widget=CheckboxSelectMultiple,
+                label = _("Which tickets should be restricted to Engels?"),
+                required=False,
+                initial=[0],
+                choices=product_choices)
 
         self.fields["engel_ticket:double_booking:messages"] = I18nFormField(
             label=_('Error message for Engel double booking'),
@@ -146,6 +151,13 @@ class SettingsView(EventSettingsViewMixin, FormView):
             current_config["shifts:before"] = datetime.datetime.fromisoformat(current_config["shifts:before"])
         if current_config["shifts:after"]:
             current_config["shifts:after"] = datetime.datetime.fromisoformat(current_config["shifts:after"])
+
+        if current_config["engel_ticket_names"] is not None:
+            try:
+                # current_config["engel_ticket_names"] = list(map(int, current_config["engel_ticket_names"].split(',')))
+                pass
+            except ValueError:
+                current_config["engel_ticket_names"] = []
 
         kwargs = super().get_form_kwargs()
         kwargs["obj"] = self.request.event

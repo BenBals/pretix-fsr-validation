@@ -147,9 +147,9 @@ class SettingsView(EventSettingsViewMixin, FormView):
         current_config = self.request.event.settings.fsr_validation_config
 
         # Pretix settings are always converted to strings automatically…
-        if current_config["shifts:before"]:
+        if current_config.get("shifts:before"):
             current_config["shifts:before"] = datetime.datetime.fromisoformat(current_config["shifts:before"])
-        if current_config["shifts:after"]:
+        if current_config.get("shifts:after"):
             current_config["shifts:after"] = datetime.datetime.fromisoformat(current_config["shifts:after"])
 
         if current_config["engel_ticket_names"] is not None:

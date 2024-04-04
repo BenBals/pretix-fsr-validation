@@ -161,7 +161,7 @@ def check_event_type_in_ephios(config, ephios_user_id, event_type=None):
 
 
 def check_email_in_engelsystem(config, email):
-    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email, safe="")}/')
+    ephios_user_response = perform_ephios_request(config, f'users/by_email/{quote(email.lower(), safe="")}/')
     if ephios_user_response.status_code != 200:
         return False
 

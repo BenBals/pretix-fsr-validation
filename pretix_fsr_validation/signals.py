@@ -136,6 +136,7 @@ def perform_ephios_request(config, path):
 def check_event_type_in_ephios(config, ephios_user_id, event_type=None):
     parameters = {
         "limit": 1,
+        "state": 1,
     }
 
     if event_type:
